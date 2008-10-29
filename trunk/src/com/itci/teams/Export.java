@@ -31,12 +31,12 @@ public class Export {
 
         String[] tabs = args.length >= 3 ? args[2].split(",") : null;
 
+        DriverManager.registerDriver(new oracle.jdbc.OracleDriver());
+        Connection conn = DriverManager.getConnection(connectionString);
         for (int schemaIndex = 0; schemaIndex < schemas.length; schemaIndex++) {
             String schema = schemas[schemaIndex];
             int exported = 0;
             int totalToExport = 0;
-            DriverManager.registerDriver(new oracle.jdbc.OracleDriver());
-            Connection conn = DriverManager.getConnection(connectionString);
             String tablesQuery = "select owner||'.'||table_name tab_nam, table_name, owner from all_tables where owner = ?  and table_name not like '%TRACE' and table_name not like 'XXX%' and table_name not like '%HISTORY' ";
             if (tabs != null) {
                 tablesQuery += " AND TABLE_NAME in (";
@@ -182,7 +182,16 @@ public class Export {
                 rs.close();
                 System.out.println("Export " + entry.getKey() + " completed - " + tableInfo.getTotalRecords() + " records");
                 System.out.println("--------------------------------------------------------------");
+
+                // export sequences
+                
+
+
             }
+            if(conn != null){
+                conn.close();
+            }
+            conn.close();
             FileWriter fw = new FileWriter(new File(schema, "load-all.bat"));
             for (Iterator it = tables.values().iterator(); it.hasNext();) {
                 TableInfo tableInfo = (TableInfo) it.next();
