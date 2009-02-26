@@ -115,7 +115,7 @@ public class Export {
                     final int columnType = rsmd.getColumnType(i);
 
                     String columnName = rsmd.getColumnName(i);
-                    if (SQLLOADER_RESERVED.contains(columnName)) {
+                    if (SQLLOADER_RESERVED.contains(columnName.toUpperCase())) {
                         columnName = QUOTE + columnName + QUOTE;
                     }
                     fw.write("\t" + columnName);
@@ -147,19 +147,18 @@ public class Export {
                             } else {
                                 fw.write(NULL);
                             }
-                        } else if (columnType != Types.DATE && columnType != Types.TIMESTAMP
-                                && columnType != Types.TIME) {
-                            if (rs.getObject(i) == null) {
-                                fw.write(NULL);
-                            } else {
-                                fw.write(rs.getObject(i) + "");
-                            }
-                        } else {
+                        } else if(columnType == Types.DATE || columnType == Types.TIMESTAMP || columnType == Types.TIME) {
                             final Date date = rs.getDate(i);
                             if (date != null) {
                                 fw.write(QUOTE + DF.format(date) + QUOTE);
                             } else {
                                 fw.write(NULL);
+                            }
+                        } else {
+                            if (rs.getObject(i) == null) {
+                                fw.write(NULL);
+                            } else {
+                                fw.write(rs.getObject(i) + "");
                             }
                         }
                         if (i < columnCount) {
